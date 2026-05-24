@@ -1,21 +1,27 @@
-const DISTRACTING_SITES = [
-  "www.instagram.com",
-  "www.facebook.com",
-  "www.twitter.com",
-  "www.x.com",
-  "www.reddit.com",
-  "www.tiktok.com",
-];
+// background.js — service worker. Watches tab changes and classifies URLs.
 
-const PRODUCTIVE_SITES = [
-  "www.github.com",
-  "www.stackoverflow.com",
-  "www.developer.mozilla.org",
-  "www.dev.to",
-  "www.freecodecamp.org",
-  "www.leetcode.com",
-];
-const YOUTUBE = ["www.youtube.com"];
+// ---- URL category lists ----
+const SITES = {
+  distracting: [
+    "instagram.com",
+    "facebook.com",
+    "twitter.com",
+    "x.com",
+    "reddit.com",
+    "tiktok.com",
+  ],
+  productive: [
+    "github.com",
+    "stackoverflow.com",
+    "developer.mozilla.org",
+    "dev.to",
+    "freecodecamp.org",
+    "leetcode.com",
+  ],
+  youtube: ["youtube.com"],
+};
+
+// ---- Classification ----
 const URL_TYPE = {
   distracting: "distracting",
   productive: "productive",
@@ -23,15 +29,19 @@ const URL_TYPE = {
   unknown: "unknown",
 };
 
-const classifyURL = (url) => {
-  const domain = new URL(url).hostname;
-  if (DISTRACTING_SITES.includes(domain)) return URL_TYPE.distracting;
-  if (PRODUCTIVE_SITES.includes(domain)) return URL_TYPE.productive;
-  if (YOUTUBE.includes(domain)) return URL_TYPE.youtube;
+function classifyURL(url) {
+  try {
+    const domain = new URL(url).hostname.replace(/^www\./, "");
+    if (SITES.distracting.includes(domain)) return URL_TYPE.distracting;
+    if (SITES.productive.includes(domain)) return URL_TYPE.productive;
+    if (SITES.youtube.includes(domain)) return URL_TYPE.youtube;
+    return URL_TYPE.unknown;
+  } catch {
+    return URL_TYPE.unknown;
+  }
+}
 
-  return URL_TYPE.unknown;
-};
-
+// ---- Tab event listeners ----
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.url) {
     const urlType = classifyURL(changeInfo.url);

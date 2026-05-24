@@ -24,8 +24,21 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"]
+      "js": [
+        "src/config.js",
+        "src/animations.js",
+        "src/bubble.js",
+        "src/cat.js",
+        "src/layout.js",
+        "content.js"
+      ]
     }
   ],
-  "permissions": ["tabs", "storage"]
+  "permissions": ["tabs", "storage"],
+  "web_accessible_resources": [
+    {
+      "resources": ["cats/*.png"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }
