@@ -1,25 +1,26 @@
-// content.js — the orchestrator. Pulls from all modules and assembles the widget.
+// content.js — listens for show messages from background and renders the widget
 
 (function () {
-  if (document.getElementById("stopme-widget")) return;
+  // Inject animation keyframes once per page
+  self.STOPME_ANIMATIONS.inject();
 
-  const { CATS, MESSAGES, randomPick } = window.STOPME_CONFIG;
+  // ---- Render the widget given cat + message data ----
+  function showWidget({ cat: catData, message }) {
+    // Remove existing widget if any (in case of fast navigation)
+    const existing = document.getElementById("stopme-widget");
+    if (existing) existing.remove();
 
-  // Inject keyframes once
-  window.STOPME_ANIMATIONS.inject();
+    const bubble = self.STOPME_BUBBLE.create(message);
+    const catEl = self.STOPME_CAT.create(catData);
+    const wrapper = self.STOPME_LAYOUT.assemble(catData, bubble, catEl);
+    self.STOPME_LAYOUT.attachDismiss(wrapper, catEl, catData);
+    document.body.appendChild(wrapper);
+  }
 
-  // Pick a random cat + message
-  const catData = randomPick(CATS);
-  const message = randomPick(MESSAGES);
-
-  // Build pieces
-  const bubble = window.STOPME_BUBBLE.create(message);
-  const cat = window.STOPME_CAT.create(catData);
-
-  // Assemble + position + add dismiss handler
-  const wrapper = window.STOPME_LAYOUT.assemble(catData, bubble, cat);
-  window.STOPME_LAYOUT.attachDismiss(wrapper, cat, catData);
-
-  // Mount
-  document.body.appendChild(wrapper);
+  // ---- Listen for show messages from background ----
+  chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+    if (msg.type === "STOPME_SHOW") {
+      showWidget(msg.payload);
+    }
+  });
 })();

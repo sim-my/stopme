@@ -1,4 +1,6 @@
-// background.js — service worker. Watches tab changes and classifies URLs.
+// background.js — service worker. Detects tab changes, picks message + cat, sends to content script.
+
+importScripts("src/config.js", "src/memory.js", "src/messages.js");
 
 // ---- URL category lists ----
 const SITES = {
@@ -21,7 +23,6 @@ const SITES = {
   youtube: ["youtube.com"],
 };
 
-// ---- Classification ----
 const URL_TYPE = {
   distracting: "distracting",
   productive: "productive",
@@ -29,6 +30,7 @@ const URL_TYPE = {
   unknown: "unknown",
 };
 
+// ---- Helpers ----
 function classifyURL(url) {
   try {
     const domain = new URL(url).hostname.replace(/^www\./, "");
@@ -41,19 +43,70 @@ function classifyURL(url) {
   }
 }
 
-// ---- Tab event listeners ----
+function getDomain(url) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return null;
+  }
+}
+
+// Pick a cat that matches the category's mood
+function pickCatForCategory(category) {
+  const mood = self.STOPME_CONFIG.CATEGORY_TO_MOOD[category];
+  const matching = self.STOPME_CONFIG.CATS.filter((c) => c.mood === mood);
+  // Fallback to any cat if no mood match
+  const pool = matching.length > 0 ? matching : self.STOPME_CONFIG.CATS;
+  return self.STOPME_CONFIG.randomPick(pool);
+}
+
+// ---- Main trigger: called on tab change ----
+async function triggerOnTab(tabId, url) {
+  if (!url || !url.startsWith("http")) return; // skip chrome://, file://, etc.
+
+  const category = classifyURL(url);
+  const domain = getDomain(url);
+  if (!domain) return;
+
+  // Record visit + build memory context
+  const context = await self.STOPME_MEMORY.recordVisit(domain, category);
+
+  // Pick message + cat based on context
+  const message = self.STOPME_MESSAGES.pick(context);
+  const cat = pickCatForCategory(category);
+
+  console.log(
+    "[bg] →",
+    domain,
+    "|",
+    category,
+    "|",
+    message.replace(/\n/g, " "),
+  );
+
+  // Send to content script in that tab
+  try {
+    await chrome.tabs.sendMessage(tabId, {
+      type: "STOPME_SHOW",
+      payload: { cat, message },
+    });
+  } catch (err) {
+    // Content script not loaded (chrome:// page, error page, etc.) — ignore
+  }
+}
+
+// ---- Listeners ----
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.url) {
-    const urlType = classifyURL(changeInfo.url);
-    console.log("[bg] stopme on", changeInfo.url, urlType);
+  // Fires when page finishes loading
+  if (changeInfo.status === "complete" && tab.url) {
+    triggerOnTab(tabId, tab.url);
   }
 });
 
-chrome.tabs.onActivated.addListener(({ tabId }) => {
-  chrome.tabs.get(tabId, (tab) => {
-    if (tab.url) {
-      const urlType = classifyURL(tab.url);
-      console.log("[bg] stopme on", tab.url, urlType);
-    }
-  });
+chrome.tabs.onActivated.addListener(async ({ tabId }) => {
+  // Fires when user switches tabs
+  try {
+    const tab = await chrome.tabs.get(tabId);
+    if (tab.url) triggerOnTab(tabId, tab.url);
+  } catch {}
 });

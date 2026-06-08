@@ -32,13 +32,28 @@ window.STOPME_LAYOUT = {
     return wrapper;
   },
 
-  // Click cat to slide out + remove
   attachDismiss(wrapper, catEl, catData) {
-    const slideOut = window.STOPME_CONFIG.LAYOUT[catData.side].slideOut;
+    const layoutConfig = window.STOPME_CONFIG.LAYOUT[catData.side];
+    const bubbleEl = wrapper.querySelector("#stopme-bubble");
+
+    const dismiss = () => {
+      // 1. Bubble exit animation
+      bubbleEl.style.animation = "stopme-bubble-out 0.35s ease-out forwards";
+
+      // 2. After bubble fades, wrapper exit animation
+      setTimeout(() => {
+        wrapper.style.animation = `${layoutConfig.slideOutAnimation} 0.6s ease-in forwards`;
+      }, 400);
+
+      // 3. Remove from DOM after everything
+      setTimeout(() => wrapper.remove(), 1100);
+    };
+
+    const autoTimer = setTimeout(dismiss, 5000);
+
     catEl.addEventListener("click", () => {
-      wrapper.style.transition = "transform 0.5s ease, opacity 0.3s ease";
-      wrapper.style.transform = slideOut;
-      setTimeout(() => wrapper.remove(), 600);
+      clearTimeout(autoTimer);
+      dismiss();
     });
   },
 };

@@ -27,6 +27,8 @@
       "js": [
         "src/config.js",
         "src/animations.js",
+        "src/memory.js",
+        "src/messages.js",
         "src/bubble.js",
         "src/cat.js",
         "src/layout.js",

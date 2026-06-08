@@ -7,11 +7,16 @@ window.STOPME_ANIMATIONS = {
     if (this.injected) return;
     const styleEl = document.createElement("style");
     styleEl.textContent = `
-      @keyframes stopme-slide-right { from { transform: translateX(110%); } to { transform: translateX(0); } }
-      @keyframes stopme-slide-left  { from { transform: translateX(-110%); } to { transform: translateX(0); } }
-      @keyframes stopme-slide-up    { from { transform: translateY(110%); } to { transform: translateY(0); } }
-      @keyframes stopme-bubble-pop  { from { opacity: 0; transform: scale(0.7); } to { opacity: 1; transform: scale(1); } }
-    `;
+        @keyframes stopme-slide-right { from { transform: translateX(110%); } to { transform: translateX(0); } }
+        @keyframes stopme-slide-left  { from { transform: translateX(-110%); } to { transform: translateX(0); } }
+        @keyframes stopme-slide-up    { from { transform: translateY(110%); } to { transform: translateY(0); } }
+        @keyframes stopme-bubble-pop  { from { opacity: 0; transform: scale(0.7); } to { opacity: 1; transform: scale(1); } }
+
+        @keyframes stopme-slide-out-right { from { transform: translateX(0); } to { transform: translateX(120%); } }
+        @keyframes stopme-slide-out-left  { from { transform: translateX(0); } to { transform: translateX(-120%); } }
+        @keyframes stopme-slide-out-down  { from { transform: translateY(0); } to { transform: translateY(120%); } }
+        @keyframes stopme-bubble-out      { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.7); } }
+        `;
     document.head.appendChild(styleEl);
     this.injected = true;
   },
