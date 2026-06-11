@@ -23,7 +23,6 @@ self.STOPME_CONFIG = {
   CATEGORY_TO_MOOD: {
     distracting: "judgy",
     productive: "smug",
-    youtube: "curious",
     unknown: "curious",
   },
 
@@ -143,12 +142,6 @@ self.STOPME_CONFIG = {
         () => "PROUD.\nKIND OF.",
         () => "YES, OK.\nKEEP GOING.",
         () => "FINE,\nYOU'VE GOT THIS.",
-      ],
-
-      youtube: [
-        (m) => m.minutesSinceLast < 5 && "ALREADY?\nWE JUST LEFT.",
-        () => "WHAT ARE\nWE WATCHING?",
-        () => "JUDGING\nIN PROGRESS.",
       ],
 
       unknown: [

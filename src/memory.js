@@ -37,10 +37,11 @@
 
     // Then update the record
     if (isFirstVisit) {
-      memory.sites[domain] = { visits: 0, lastVisit: now };
+      memory.sites[domain] = { visits: 0, lastVisit: now, timeSpent: 0 };
     }
     memory.sites[domain].visits += 1;
     memory.sites[domain].lastVisit = now;
+    memory.sites[domain].category = category;
 
     // Save the "previous category/domain" before overwriting
     const lastCategory = memory.lastCategory || null;
@@ -60,6 +61,50 @@
       lastDomain,
       hour: new Date().getHours(),
     };
+  },
+
+  // ---- Add active time spent on a site (ms) ----
+  // Called by the background time tracker when you leave/switch a tracked tab.
+  async addTime(domain, category, ms) {
+    if (!ms || ms <= 0) return;
+    const memory = await this.load();
+    if (!memory.sites[domain]) {
+      memory.sites[domain] = { visits: 0, lastVisit: Date.now(), timeSpent: 0 };
+    }
+    memory.sites[domain].timeSpent = (memory.sites[domain].timeSpent || 0) + ms;
+    memory.sites[domain].category = category;
+    await this.save(memory);
+  },
+
+  // ---- Aggregate stats for the options page ----
+  // Groups every recorded site under its CURRENT category from settings.
+  async getStats(settings) {
+    const memory = await this.load();
+    const out = {
+      date: memory.date,
+      distracting: { visits: 0, timeMs: 0, sites: [] },
+      productive: { visits: 0, timeMs: 0, sites: [] },
+    };
+    for (const [domain, rec] of Object.entries(memory.sites)) {
+      const category = self.STOPME_SETTINGS.classify(
+        "https://" + domain,
+        settings,
+      );
+      if (category !== "distracting" && category !== "productive") continue;
+      const visits = rec.visits || 0;
+      const timeMs = rec.timeSpent || 0;
+      out[category].visits += visits;
+      out[category].timeMs += timeMs;
+      out[category].sites.push({ domain, visits, timeMs });
+    }
+    out.distracting.sites.sort((a, b) => b.timeMs - a.timeMs);
+    out.productive.sites.sort((a, b) => b.timeMs - a.timeMs);
+    return out;
+  },
+
+  // ---- Wipe all recorded visits + time ----
+  async resetAll() {
+    await this.save(this._fresh());
   },
 
   // ---- Helpers ----

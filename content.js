@@ -5,10 +5,12 @@
   self.STOPME_ANIMATIONS.inject();
 
   // ---- Render the widget given cat + message data ----
-  function showWidget({ cat: catData, message }) {
+  function showWidget({ cat: catData, message, meow }) {
     // Remove existing widget if any (in case of fast navigation)
     const existing = document.getElementById("stopme-widget");
     if (existing) existing.remove();
+
+    if (meow) self.STOPME_SOUND.meow();
 
     const bubble = self.STOPME_BUBBLE.create(message);
     const catEl = self.STOPME_CAT.create(catData);

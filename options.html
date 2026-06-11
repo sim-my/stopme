@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>stopme</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <div class="app">
+      <!-- Header -->
+      <header class="hero">
+        <img src="cats/judgy_right.png" alt="" class="hero-cat" />
+        <div class="hero-text">
+          <h1>stopme</h1>
+          <span class="hero-status" id="hero-status">
+            <i class="dot"></i><span id="hero-status-text">active</span>
+          </span>
+        </div>
+        <button class="theme-btn" id="theme-btn" title="Toggle dark mode">
+          <span class="theme-icon"></span>
+        </button>
+      </header>
+
+      <!-- Pause -->
+      <section class="card">
+        <div class="card-top">
+          <span class="card-label">Pause the cat</span>
+        </div>
+        <div class="seg" id="pause-presets">
+          <button data-pause="15">15m</button>
+          <button data-pause="60">1h</button>
+          <button data-pause="480">8h</button>
+        </div>
+        <div class="banner" id="pause-banner" hidden>
+          <span id="pause-banner-text">Paused</span>
+          <button class="link" data-pause="resume">Resume</button>
+        </div>
+      </section>
+
+      <!-- Sound -->
+      <section class="card row-card">
+        <div class="row-text">
+          <span class="card-label">Meow sound</span>
+          <span class="card-sub">A meow when the cat appears</span>
+        </div>
+        <div class="row-actions">
+          <button class="icon-btn" id="meow-test" title="Test meow">play</button>
+          <label class="switch">
+            <input type="checkbox" id="meow-toggle" />
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+        </div>
+      </section>
+
+      <!-- Distracting -->
+      <section class="card">
+        <div class="card-top">
+          <span class="card-label"><i class="tag tag--bad"></i>Distracting</span>
+          <span class="card-sub">judged here</span>
+        </div>
+        <ul class="chips" id="list-distracting"></ul>
+        <form class="add" data-category="distracting">
+          <input type="text" placeholder="add a site…" spellcheck="false" />
+          <button type="submit" aria-label="Add">+</button>
+        </form>
+      </section>
+
+      <!-- Productive -->
+      <section class="card">
+        <div class="card-top">
+          <span class="card-label"><i class="tag tag--good"></i>Productive</span>
+          <span class="card-sub">cheered on here</span>
+        </div>
+        <ul class="chips" id="list-productive"></ul>
+        <form class="add" data-category="productive">
+          <input type="text" placeholder="add a site…" spellcheck="false" />
+          <button type="submit" aria-label="Add">+</button>
+        </form>
+      </section>
+
+      <!-- Stats -->
+      <section class="card">
+        <div class="card-top">
+          <span class="card-label">Today</span>
+          <button class="link link--muted" id="reset-btn">reset</button>
+        </div>
+        <div class="stats" id="stats"></div>
+      </section>
+
+      <footer class="foot">changes save automatically 🐾</footer>
+    </div>
+
+    <script src="src/settings.js"></script>
+    <script src="src/memory.js"></script>
+    <script src="src/sound.js"></script>
+    <script src="options.js"></script>
+  </body>
+</html>

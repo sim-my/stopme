@@ -15,7 +15,8 @@
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     },
-    "default_title": "Stop mee kitty!"
+    "default_title": "Stop mee kitty! (click for settings)",
+    "default_popup": "options.html"
   },
 
   "background": {
@@ -26,12 +27,14 @@
       "matches": ["<all_urls>"],
       "js": [
         "src/config.js",
+        "src/settings.js",
         "src/animations.js",
         "src/memory.js",
         "src/messages.js",
         "src/bubble.js",
         "src/cat.js",
         "src/layout.js",
+        "src/sound.js",
         "content.js"
       ]
     }
